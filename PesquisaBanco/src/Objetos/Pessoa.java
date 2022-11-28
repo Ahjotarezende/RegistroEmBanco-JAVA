@@ -1,8 +1,6 @@
 package Objetos;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
+import java.io.*;
 
 public class Pessoa {
     private int idConta;
@@ -14,6 +12,10 @@ public class Pessoa {
     private String cidade;
     private int transRealizadas;
     private float saldo;
+
+    public Pessoa(int IdPessoa){
+        idConta = IdPessoa;
+    }
 
     public Pessoa(byte[] dados) throws IOException {
         ByteArrayInputStream bais = new ByteArrayInputStream(dados);
@@ -29,6 +31,24 @@ public class Pessoa {
         this.setCpf(dis.readUTF());
         this.setCidade(dis.readUTF());
         this.setTransRealizadas(dis.readInt());
+        this.setSaldo(dis.readFloat());
+    }
+
+    public byte[] toBTArray() throws IOException{
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream dos = new DataOutputStream(baos);
+        dos.writeInt(this.getIdConta());
+        dos.writeUTF(this.getNome());
+        dos.writeInt(this.getEmail().length);
+        for (int i = 0; i < this.getEmail().length; i++)
+            dos.writeUTF(this.getEmail()[i]);
+        dos.writeUTF(this.getNomeUsuario());
+        dos.writeUTF(this.getSenha());
+        dos.writeUTF(this.getCpf());
+        dos.writeUTF(this.getCidade());
+        dos.writeInt(this.getTransRealizadas());
+        dos.writeFloat(this.getSaldo());
+        return baos.toByteArray();
     }
 
     public int getIdConta() {
