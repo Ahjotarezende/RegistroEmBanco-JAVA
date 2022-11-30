@@ -1,12 +1,18 @@
 package Menu;
 import Objetos.Banco;
+import Objetos.Navegation;
+import Objetos.Pessoa;
 
+import java.io.File;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
+        String filePath = new File("").getAbsolutePath();
+        System.out.println(filePath);
+        Navegation nav = new Navegation();
         Scanner sc = new Scanner(System.in);
-        int operation;
+        int operacao;
         Banco banco = new Banco();
         do{
             System.out.println("Seja bem vindo!");
@@ -17,17 +23,26 @@ public class Main {
             System.out.println("4- Atualizar dados");
             System.out.println("5- Apagar uma conta existente");
             System.out.println("6- Sair");
-            operation = sc.nextInt();
-            switch (operation) {
+            operacao = sc.nextInt();
+            switch (operacao) {
                 case 1:
+                    Pessoa p = banco.novaConta();
+                    long pos = banco.salvarConta(p, p.getIdConta());
+                    nav.criarConta(p.getIdConta(), pos);
                     break;
                 case 2:
+                    banco.transferencia();
                     break;
                 case 3:
+                    System.out.println("Qual conta deseja procurar? (ID)");
+                    int id = sc.nextInt();
+                    banco.pesqConta(nav.lerID(id));
                     break;
                 case 4:
+                    banco.atualizarConta();
                     break;
                 case 5:
+                    banco.deletarConta();
                     break;
                 case 6:
                     break;
@@ -35,6 +50,6 @@ public class Main {
                     System.out.println("Essa opcao nao é valida, digite outra.");
                     break;
             }
-        }while(operation!=6);
+        }while(operacao!=6);
     }
 }
