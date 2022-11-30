@@ -4,12 +4,11 @@ import Objetos.Navegation;
 import Objetos.Pessoa;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Main {
-    public static void main(String[] args) {
-        String filePath = new File("").getAbsolutePath();
-        System.out.println(filePath);
+    public static void main(String[] args) throws IOException {
         Navegation nav = new Navegation();
         Scanner sc = new Scanner(System.in);
         int operacao;
@@ -22,7 +21,9 @@ public class Main {
             System.out.println("3- Pesquisar por uma conta");
             System.out.println("4- Atualizar dados");
             System.out.println("5- Apagar uma conta existente");
-            System.out.println("6- Sair");
+            System.out.println("6- Comprimir dados");
+            System.out.println("7- Descomprimir dados");
+            System.out.println("8- Sair");
             operacao = sc.nextInt();
             switch (operacao) {
                 case 1:
@@ -45,11 +46,17 @@ public class Main {
                     banco.deletarConta();
                     break;
                 case 6:
+                    banco.comprimirReg();
+                    break;
+                case 7:
+                    banco.descomprimirReg();
+                    break;
+                case 8:
                     break;
                 default:
                     System.out.println("Essa opcao nao é valida, digite outra.");
                     break;
             }
-        }while(operacao!=6);
+        }while(operacao!=8);
     }
 }

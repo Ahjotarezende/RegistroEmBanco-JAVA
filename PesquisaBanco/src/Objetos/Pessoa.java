@@ -24,7 +24,7 @@ public class Pessoa {
         this.setNome(dis.readUTF());
         String[] emails = new String[dis.readInt()];
         for(int i=0; i<emails.length; i++)
-            email[i]=dis.readUTF();
+            emails[i]=dis.readUTF();
         this.setEmail(emails);
         this.setNomeUsuario(dis.readUTF());
         this.setSenha(dis.readUTF());

@@ -4,7 +4,7 @@ import java.io.RandomAccessFile;
 
 public class Navegation {
     public void criarConta(int id, long pos) {
-        try(RandomAccessFile randomAcess = new RandomAccessFile("src/output/tabelaIndex.txt", "rw")){
+        try(RandomAccessFile randomAcess = new RandomAccessFile("PesquisaBanco/src/output/tabelaIndex.txt", "rw")){
             int hash = this.defHash(id);
             int posTabela = hash*20;
             randomAcess.seek(posTabela);
@@ -20,7 +20,7 @@ public class Navegation {
                 randomAcess.writeLong(pos);
                 randomAcess.writeLong(-1);
             }else if(idLido != 0){
-                randomAcess.seek(idLido);
+                randomAcess.seek(posTabela);
                 while(true){
                     randomAcess.seek(randomAcess.getFilePointer()+12);
                     long PosicaoID = randomAcess.getFilePointer();
@@ -44,7 +44,7 @@ public class Navegation {
     }
 
     public long lerID(int id){
-        try(RandomAccessFile randomAcess = new RandomAccessFile("src/output/tabelaIndex.txt", "r")){
+        try(RandomAccessFile randomAcess = new RandomAccessFile("PesquisaBanco/src/output/tabelaIndex.txt", "r")){
             int hash = this.defHash(id);
             int posTabela = hash*20;
             randomAcess.seek(posTabela);
@@ -77,7 +77,7 @@ public class Navegation {
     }
 
     public void updateID(int id, long change){
-        try(RandomAccessFile randomAcess = new RandomAccessFile("src/output/tabelaIndex.txt", "rw")){
+        try(RandomAccessFile randomAcess = new RandomAccessFile("PesquisaBanco/src/output/tabelaIndex.txt", "rw")){
             int hash = this.defHash(id);
             int PosTabela = hash*20;
             randomAcess.seek(PosTabela);

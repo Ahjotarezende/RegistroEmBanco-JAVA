@@ -1,43 +1,49 @@
 package Objetos;
 
-import java.io.RandomAccessFile;
+import java.io.*;
+import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
 public class Banco {
     public int gerarID(){
         int ultimoID;
-        try(RandomAccessFile randomAcess = new RandomAccessFile("TrabalhoAEDIII/PesquisaBanco/src/output/arqBanco.txt", "r")){
+        try(RandomAccessFile randomAcess = new RandomAccessFile("PesquisaBanco/src/output/arqBanco.txt", "r")){
             try{
                 ultimoID = randomAcess.readInt();
             }catch(Exception e){
                 ultimoID = -1;
             }
+            if(ultimoID==-1)
+                return 1;
         }catch(Exception e){
-            return -1;
+            return 1;
         }
         return ultimoID+1;
     }
 
     public int verificaNome(String test){
-        try(RandomAccessFile randomAccess = new RandomAccessFile("TrabalhoAEDIII/PesquisaBanco/src/output/arqBanco.txt", "r")){
+        try(RandomAccessFile randomAccess = new RandomAccessFile("PesquisaBanco/src/output/arqBanco.txt", "r")){
             randomAccess.seek(4);
-            byte lapide = randomAccess.readByte();
-            int tamRegistro = randomAccess.readInt();
-            byte[] bytes = new byte[tamRegistro];
-            randomAccess.read(bytes);
-            if(lapide==0){
-                Pessoa p = new Pessoa(bytes);
-                if(test.equals(p.getNomeUsuario()))
-                    return 0;
-            }
+            do{
+                byte lapide = randomAccess.readByte();
+                int tamRegistro = randomAccess.readInt();
+                byte[] bytes = new byte[tamRegistro];
+                randomAccess.read(bytes);
+                if (lapide == 0) {
+                    Pessoa p = new Pessoa(bytes);
+                    if (test.equals(p.getNomeUsuario()))
+                        return 0;
+                }
+            }while(randomAccess.getFilePointer()!=randomAccess.length());
         }catch(Exception e){
             return 1;
         }
         return 1;
     }
     public Pessoa novaConta(){
-        Pessoa p = new Pessoa(gerarID());
+        Pessoa p = new Pessoa(this.gerarID());
         System.out.print("Nome: ");
         Scanner sc = new Scanner(System.in);
         p.setNome(sc.nextLine());
@@ -96,7 +102,7 @@ public class Banco {
         if(posDep<0)
             System.out.println("Usuario nao encontrado.");
         if(posBen>=0 && posDep>=0){
-            try(RandomAccessFile randomAcess = new RandomAccessFile("TrabalhoAEDIII/PesquisaBanco/src/output/arqBanco.txt", "rw")){
+            try(RandomAccessFile randomAcess = new RandomAccessFile("PesquisaBanco/src/output/arqBanco.txt", "rw")){
                 randomAcess.seek(posDep);
                 randomAcess.readByte();
                 int tamReg = randomAcess.readInt();
@@ -152,7 +158,7 @@ public class Banco {
 
     public long salvarConta(Pessoa p, int id){
         long pos=0;
-        try(RandomAccessFile randomAccess = new RandomAccessFile("TrabalhoAEDIII/PesquisaBanco/src/output/arqBanco.txt", "rw")){
+        try(RandomAccessFile randomAccess = new RandomAccessFile("PesquisaBanco/src/output/arqBanco.txt", "rw")){
             randomAccess.writeInt(id);
             randomAccess.seek(randomAccess.length());
             pos=randomAccess.getFilePointer();
@@ -168,7 +174,7 @@ public class Banco {
     }
 
     public void pesqConta(Long pos){
-        try(RandomAccessFile randomAcess = new RandomAccessFile("TrabalhoAEDIII/PesquisaBanco/src/output/arqBanco.txt", "r")){
+        try(RandomAccessFile randomAcess = new RandomAccessFile("PesquisaBanco/src/output/arqBanco.txt", "r")){
             randomAcess.seek(pos);
             byte lapide = randomAcess.readByte();
             byte[] dadosConta = new byte[randomAcess.readInt()];
@@ -184,6 +190,7 @@ public class Banco {
                 System.out.println("Nome de usuario: "+p.getNomeUsuario());
                 System.out.println("Cidade: "+p.getCidade());
                 System.out.println("CPF: "+p.getCpf());
+                System.out.println("Saldo: "+p.getSaldo());
             }
             else
                 System.out.println("Conta nao encontrada.");
@@ -192,7 +199,7 @@ public class Banco {
         }
     }
     public void atualizarConta(){
-        try(RandomAccessFile randomAcess = new RandomAccessFile("TrabalhoAEDIII/PesquisaBanco/src/output/arqBanco.txt", "rw")){
+        try(RandomAccessFile randomAcess = new RandomAccessFile("PesquisaBanco/src/output/arqBanco.txt", "rw")){
             Scanner sc = new Scanner(System.in);
             System.out.println("Digite o ID da conta: ");
             int id = sc.nextInt();
@@ -205,6 +212,7 @@ public class Banco {
                     byte[] dadosConta = new byte[randomAcess.readInt()];
                     p = new Pessoa(dadosConta);
                     this.pesqConta(pos);
+                    sc.nextLine();
                     System.out.println("Novo nome: ");
                     p.setNome(sc.nextLine());
                     while(true){
@@ -222,8 +230,9 @@ public class Banco {
                         qtdEmails = sc.nextInt();
                     }while(qtdEmails<=0);
                     String[] emails = new String[qtdEmails];
+                    sc.nextLine();
                     for (int i = 0; i < qtdEmails; i++) {
-                        System.out.println("Informe o "+i+" email: ");
+                        System.out.println("Informe o "+(i+1)+" email: ");
                         emails[i]=sc.nextLine();
                     }
                     p.setEmail(emails);
@@ -271,7 +280,7 @@ public class Banco {
     }
 
     public void deletarConta(){
-        try(RandomAccessFile randomAccess = new RandomAccessFile("TrabalhoAEDIII/PesquisaBanco/src/output/arqBanco.txt", "rw")){
+        try(RandomAccessFile randomAccess = new RandomAccessFile("PesquisaBanco/src/output/arqBanco.txt", "rw")){
             Scanner sc = new Scanner(System.in);
             System.out.println("ID da conta a ser deletada.");
             int id = sc.nextInt();
@@ -281,6 +290,7 @@ public class Banco {
                 randomAccess.seek(pos);
                 byte lapide = randomAccess.readByte();
                 byte[] dadosConta = new byte[randomAccess.readInt()];
+                randomAccess.read(dadosConta);
                 Pessoa p = new Pessoa(dadosConta);
                 if(lapide!=1){
                     char op;
@@ -289,9 +299,11 @@ public class Banco {
                         System.out.println("S - Sim │ N - Não");
                         op = sc.next().charAt(0);
                         if(op=='S') {
+                            System.out.println("Conta deletada");
+                            randomAccess.seek(pos);
                             randomAccess.writeByte(1);
                             break;
-                        }else if(op!='S' || op!='N'){
+                        }else if(op!='S' && op!='N'){
                             System.out.println("Opção invalida, digite novamente.");
                         }
                         else
@@ -302,6 +314,81 @@ public class Banco {
             }else
                 System.out.println("Usuario nao encontrado.");
         }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public void comprimirReg() throws IOException {
+        Scanner sc = new Scanner(System.in);
+        String nomeArq;
+        System.out.println("Qual sera o nome do arquivo:");
+        nomeArq = sc.nextLine();
+        System.out.println("Versão (Será usada para descompressão):");
+        nomeArq = nomeArq+"Compressao"+sc.nextLine();
+        nomeArq += ".lzw";
+
+        LZW lzw = new LZW();
+        File arqBase = new File("PesquisaBanco/src/output/arqBanco.txt");
+        byte[] bytes = Files.readAllBytes(arqBase.toPath());
+
+        ArrayList<Integer> vetCodificado;
+
+        long tempoInicial = System.currentTimeMillis();
+        vetCodificado = lzw.compressaoReg(bytes);
+        long tempoFinal = System.currentTimeMillis();
+
+        int[] arr = vetCodificado.stream().mapToInt(i -> i).toArray();
+        long arrTam = (long)arr.length * 32;
+
+        DataOutputStream dos;
+
+        try(FileOutputStream fos = new FileOutputStream("PesquisaBanco/src/output/"+nomeArq)) {
+            dos = new DataOutputStream(fos);
+            for (int j : arr) dos.writeInt(j);
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        long bytesSize = Files.size(arqBase.toPath()) * 32;
+        double percent = 1-(double)(bytesSize/arrTam);
+
+        System.out.println("Tempo gasto: "+(tempoFinal-tempoInicial)+"ms | Ganho (%): "+(percent*100)+"%");
+    }
+
+    public void descomprimirReg() throws IOException{
+        Scanner sc = new Scanner(System.in);
+        String nomeArq;
+        System.out.println("Qual arquivo deseja descomprimir:");
+        nomeArq = sc.nextLine();
+        System.out.println("Versão:");
+        nomeArq = nomeArq+"Compressao"+sc.nextLine();
+        nomeArq += ".lzw";
+
+        DataInputStream dis;
+        LZW lzw = new LZW();
+        ArrayList<Byte> vetDecod = new ArrayList<Byte>();
+
+        try(FileInputStream fis = new FileInputStream("PesquisaBanco/src/output/"+nomeArq)) {
+            dis = new DataInputStream(fis);
+            ArrayList<Integer> vet_cod = new ArrayList<Integer>();
+            while(true) {
+                try{
+                    vet_cod.add(dis.readInt());
+                } catch (EOFException fim) {
+                    dis.close();
+                    break;
+                }
+            }
+            vetDecod = lzw.descReg(vet_cod);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        try(RandomAccessFile raf = new RandomAccessFile("PesquisaBanco/src/output/arqBanco.txt", "rw")) {
+            raf.writeByte(vetDecod.get(0)); //last id
+            for(int i=1; i<vetDecod.size(); i++) {
+                raf.writeByte(vetDecod.get(i));
+            }
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
